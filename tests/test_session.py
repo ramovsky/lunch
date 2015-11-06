@@ -1,51 +1,34 @@
-import sys
-import json
-import asyncio
-import aiohttp
 import unittest
 
-sys.path.append('..')
-
-from lunch.main import init
-
-
-config = dict(host='127.0.0.1', port=8091)
+from lunch.session import Session, SessionFinished, Config, User
 
 
 class TestSession(unittest.TestCase):
 
-    def setUp(self):
-        asyncio.set_event_loop(None)
-        loop = asyncio.new_event_loop()
-        self.run = loop.run_until_complete
-        self._srv = self.run(init(loop, config))
-        self._client = aiohttp.ClientSession(loop=loop)
-        self._loop = loop
+    def test_finished(self):
+        session = Session(Config())
+        self.assertEqual(session.finished, False)
+        session.finish()
+        self.assertEqual(session.finished, True)
+        with self.assertRaises(SessionFinished):
+            session.finish()
+        with self.assertRaises(SessionFinished):
+            session.join(object())
 
-    def tearDown(self):
-        self._client.close()
-        self._srv.close()
-        self.run(self._srv.wait_closed())
-        self._loop.stop()
-        self._loop.run_forever()
-        self._loop.close()
+    def test_join(self):
+        session = Session(Config())
+        session.join(User('test'))
+        self.assertEqual(1, len(session.users))
+        session.join(User('test1'))
+        self.assertEqual(2, len(session.users))
+        session.join(User('test'))
+        self.assertEqual(2, len(session.users))
 
-    async def communicate(self, url, data={}, method='GET', code=200):
-        args = {}
-        if data:
-            args['data'] = json.dumps(data).encode('utf-8')
-            args['headers'] = {'Content-Type': 'application/json'}
-
-        response = await self._client.request(
-            method,
-            'http://{host}:{port}{url}'.format(url=url, **config),
-            **args)
-        self.assertEqual(code, response.status)
-        data = await response.text()
-        return data
-
-    def test_shit(self):
-        print(self.run(self.communicate('/')))
-
-    def test_shit2(self):
-        print(self.run(self.communicate('/')))
+    def test_leave(self):
+        session = Session(Config())
+        session.join(User('test'))
+        self.assertEqual(1, len(session.users))
+        session.join(User('test1'))
+        self.assertEqual(2, len(session.users))
+        session.leave(User('test'))
+        self.assertEqual(1, len(session.users))

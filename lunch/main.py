@@ -21,13 +21,13 @@ async def init(loop, config):
 
     srv = await loop.create_server(app.make_handler(),
                                    **config)
-    print("Server started at http://{host}:{port}".format(**config))
     return srv
 
 
 def main():
     loop = asyncio.get_event_loop()
     loop.run_until_complete(init(loop, config))
+    print("Server started at http://{host}:{port}".format(**config))
     try:
         loop.run_forever()
     except KeyboardInterrupt:
