@@ -32,7 +32,7 @@ class User:
 
 class Config:
 
-    def __init__(self, path='places.yaml'):
+    def __init__(self, path='config.yaml'):
         self.places = {}
         self._path = path
         self._history = []
@@ -43,13 +43,29 @@ class Config:
     def add_place(self, place, distance=.5):
         self.places[place] = distance
 
+    def add_winner(self, place):
+        self._history.insert(0, place)
+
+    def get_recent(self, place):
+        try:
+            index = self._history.index(place)
+            if index < 8:
+                return 8 - index
+        except ValueError:
+            pass
+
+        return 1
+
     def load(self):
         with open(self._path) as f:
-            self.places = yaml.load(f)
+            data = yaml.load(f)
+        self.places = data['places']
+        self._history = data['history'][-7:]
 
     def save(self):
+        data = dict(places=self.places, history=self._history)
         with open(self._path, 'w') as f:
-            yaml.dump(self.places, f)
+            yaml.dump(data, f)
 
 
 class Session:
@@ -83,6 +99,7 @@ class Session:
         self.finished = True
         scores = self._calc_weights()
         self.winner = self._get_winner(scores)
+        self._config.add_winner(self.winner)
 
     def _calc_weights(self):
         weights = defaultdict(float)
@@ -90,11 +107,13 @@ class Session:
             for place in self._config.places:
                 weights[place] += user.get_preference(place)
 
-        # if weather is nice further restaurant prefered and vice versa
         for place, distance in self._config.places.items():
-            weights[place] *= .1 + abs(self._weather - distance)
+            # if weather is nice further restaurant prefered and vice versa
+            weights[place] *= .1 + (self._weather - distance)**2
 
-        # penalty for restaurants visited recently
+            # penalty for restaurants visited recently
+            weights[place] *= 1/self._config.get_recent(place)
+
         return weights
 
     def _get_winner(self, scores):

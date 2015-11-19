@@ -31,3 +31,13 @@ class TestConfig(unittest.TestCase):
         config = Config(file)
         config.load()
         self.assertEqual(places, config.places)
+
+    def test_history_crop(self):
+        file = NamedTemporaryFile().name
+        config = Config(file)
+        for i in range(10):
+            config.add_winner('Sisaket')
+        config.save()
+        config = Config(file)
+        config.load()
+        self.assertEqual(7, len(config._history))

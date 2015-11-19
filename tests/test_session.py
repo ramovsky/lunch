@@ -62,3 +62,13 @@ class TestSession(unittest.TestCase):
         session.join(User('test'))
         weights = session._calc_weights()
         self.assertLess(weights['Sisaket'], weights['Russian'])
+
+    def test_history_penalty(self):
+        config = Config()
+        config.add_place('Sisaket', .7)
+        session = Session(config, .8)
+        session.join(User('test'))
+        old_weights = session._calc_weights()
+        config.add_winner('Sisaket')
+        new_weights = session._calc_weights()
+        self.assertGreater(old_weights['Sisaket'], new_weights['Sisaket'])
