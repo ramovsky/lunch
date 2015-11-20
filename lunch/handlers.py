@@ -3,7 +3,6 @@ import logging
 import aiohttp
 import aiohttp_jinja2
 from aiohttp import web
-from aiohttp_session import get_session
 
 
 log = logging.getLogger(__name__)
@@ -39,8 +38,6 @@ class WebSockHandler:
             msg = await ws.receive()
             if msg.tp == aiohttp.MsgType.text:
                 log.info('WS msg received %s', msg.data)
-                session = await get_session(request)
-
                 try:
                     answer = self._process_message(msg.data)
                     ws.send_str(answer)
@@ -48,9 +45,9 @@ class WebSockHandler:
                     ws.send_str(e.msg)
 
             elif msg.tp == aiohttp.MsgType.close:
-                print('websocket connection closed')
+                log.info('websocket connection closed')
             elif msg.tp == aiohttp.MsgType.error:
-                print('ws connection closed with exception %s' %
+                log.info('ws connection closed with exception %s' %
                       ws.exception())
 
         return ws

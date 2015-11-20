@@ -16,6 +16,13 @@
       // the script tag loading scripts/example.js and start writing code here.
     </script>
     <script type="text/javascript">
+    var uuid = function () {
+      var result='';
+      for(var i=0; i<32; i++)
+	result += Math.floor(Math.random()*16).toString(16).toUpperCase();
+      return result
+    }
+
     var ws = new WebSocket('ws://' + window.location.host + '/ws/');
     ws.onopen = function () {
       ws.send('["hello"]');

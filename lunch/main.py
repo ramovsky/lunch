@@ -3,8 +3,6 @@ import asyncio
 import os.path
 import aiohttp_jinja2
 from aiohttp import web
-from aiohttp_session import session_middleware
-from aiohttp_session.cookie_storage import EncryptedCookieStorage
 
 from .handlers import index, WebSockHandler
 
@@ -13,11 +11,7 @@ config = dict(host='127.0.0.1', port=9999)
 
 
 async def init(loop, config):
-    app = web.Application(
-        loop=loop,
-        middlewares=[session_middleware(
-            EncryptedCookieStorage(b'12345678901234561234567890123456'))]
-    )
+    app = web.Application(loop=loop)
 
     folder = os.path.dirname(os.path.dirname(__file__))
     aiohttp_jinja2.setup(app,
