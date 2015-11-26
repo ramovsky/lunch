@@ -4,6 +4,8 @@ import aiohttp
 import aiohttp_jinja2
 from aiohttp import web
 
+from lunch.users import get_user
+
 
 log = logging.getLogger(__name__)
 
@@ -15,8 +17,8 @@ async def index(request):
 
 class JsonRpc:
 
-    def hello(self):
-        return 'hello'
+    def auth(self, user, id):
+        return dict(sessions=[])
 
 
 class ProtocolError(Exception):
@@ -39,7 +41,7 @@ class WebSockHandler:
             if msg.tp == aiohttp.MsgType.text:
                 log.info('WS msg received %s', msg.data)
                 try:
-                    answer = self._process_message(msg.data)
+                    answer = self._process_message(ws, msg.data)
                     ws.send_str(answer)
                 except ProtocolError as e:
                     ws.send_str(e.msg)
@@ -52,20 +54,25 @@ class WebSockHandler:
 
         return ws
 
-    def _process_message(self, data):
+    def _process_message(self, ws, data):
         try:
             data = json.loads(data)
             assert type(data) == list
         except (ValueError, AssertionError):
             raise ProtocolError('wrong_command_format')
 
-        command, *args = data
+        command, args = data
         if command.startswith('_'):
-            raise protocolError('wrong_command')
+            raise ProtocolError('wrong_command')
+
+        if command == 'auth':
+            id = args['id']
+            ws.set_cookie('auth', id)
 
         try:
             method = getattr(self._rpc, command)
         except AttributeError:
             raise ProtocolError('unknown_method')
 
-        return method(*args)
+        user = get_user(ws.cookies['auth'].value)
+        return json.dumps(method(user, **args))

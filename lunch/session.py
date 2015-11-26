@@ -11,25 +11,6 @@ class SessionEmpty(Exception):
     pass
 
 
-class User:
-
-    def __init__(self, name):
-        self.name = name
-        self._preferences = {}
-
-    def __repr__(self):
-        return '<User:{}>'.format(self.name)
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return hash(self.name) == hash(other)
-
-    def get_preference(self, place):
-        return self._preferences.get(place, .5)
-
-
 class Config:
 
     def __init__(self, path='config.yaml'):
