@@ -13,8 +13,69 @@
   <body>
     <div id="content"></div>
     <script type="text/babel">
-      // To get started with this tutorial running your own code, simply remove
-      // the script tag loading scripts/example.js and start writing code here.
+    var restaurants = [
+      {name: "Sisaket", score: .6},
+      {name: "Lyly", score: .8},
+      ];
+
+    var UserSettingsBox = React.createClass({
+      getInitialState: function(){
+        return {restaurants: []};
+      },
+      componentDidMount: function(){
+        this.setState({restaurants: restaurants})
+      },
+      render: function(){
+        return (
+          <div className="user_settings">
+          <h2>Hi. Tell us your name and preferences.</h2>
+	  <UserName />
+	  <Restaurants data={this.state.restaurants} />
+          </div>
+        );
+      }
+    });
+
+    var UserName = React.createClass({
+      render: function(){
+	return (
+          <div className="user_name">
+	  <input />User name
+          </div>
+	);
+      }
+    });
+
+    var Restaurant = React.createClass({
+      render: function(){
+	return (
+	  <div className="restaurant">
+	    <span className="restaurant_name">{this.props.name}</span>
+	    <input defaultValue={this.props.score}/>
+	  </div>
+	);
+       }
+    });
+
+    var Restaurants = React.createClass({
+      render: function(){
+	var restaurantNode = this.props.data.map(function(restaurant){
+	  return (
+	    <Restaurant name={restaurant.name} score={restaurant.score} />
+	    );
+	  });
+	return (
+          <div className="user_settings">
+	    {restaurantNode}
+          </div>
+	);
+      }
+    });
+
+    ReactDOM.render(
+      <UserSettingsBox />,
+      document.getElementById('content')
+    );
     </script>
     <script type="text/javascript">
     var uuid = function(){
