@@ -1,0 +1,54 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Friday Lunch</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/static/js/js.cookie.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/javascript">
+    var uuid = function(){
+      var result='';
+      for(var i=0; i<32; i++)
+	result += Math.floor(Math.random()*16).toString(16).toUpperCase();
+      return result
+    };
+
+    var get_id = function(){
+      var user_id = Cookies.get('user_id');
+      if(!user_id){
+	user_id = uuid();
+	Cookies.set('user_id', user_id);
+      };
+      return user_id;
+    };
+
+    var ws = new WebSocket('ws://' + window.location.host + '/ws/');
+    ws.onopen = function(){
+      ws.communicate('auth', {'id': get_id()});
+    };
+
+    ws.onerror = function(error){
+      console.log('WS error:' + error);
+    };
+
+    ws.onmessage = function(e){
+      console.log('Message: ' + e.data);
+    };
+
+    ws.communicate = function(method, data){
+      this.send(JSON.stringify([method, data]));
+    };
+    </script>
+    {% block react %}
+    {% endblock %}
+    <script type="text/babel">
+    </script>
+  </body>
+</html>

@@ -1,115 +1,67 @@
-<!-- index.html -->
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Friday Lunch</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.3/react-dom.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="/static/js/js.cookie.js"></script>
-  </head>
-  <body>
-    <div id="content"></div>
-    <script type="text/babel">
-    var restaurants = [
-      {name: "Sisaket", score: .6},
-      {name: "Lyly", score: .8},
-      ];
+{% extends "base.jinja2" %}
 
-    var UserSettingsBox = React.createClass({
-      getInitialState: function(){
-        return {restaurants: []};
-      },
-      componentDidMount: function(){
-        this.setState({restaurants: restaurants})
-      },
-      render: function(){
-        return (
-          <div className="user_settings">
-          <h2>Hi. Tell us your name and preferences.</h2>
-	  <UserName />
-	  <Restaurants data={this.state.restaurants} />
-          </div>
-        );
-      }
-    });
+{% block react %}
+var restaurants = [
+{name: "Sisaket", score: .6},
+{name: "Lyly", score: .8},
+];
 
-    var UserName = React.createClass({
-      render: function(){
-	return (
-          <div className="user_name">
-	  <input />User name
-          </div>
-	);
-      }
-    });
+var UserSettingsBox = React.createClass({
+getInitialState: function(){
+return {restaurants: []};
+},
+componentDidMount: function(){
+this.setState({restaurants: restaurants})
+},
+render: function(){
+return (
+<div className="user_settings">
+  <h2>Hi. Tell us your name and preferences.</h2>
+  <UserName />
+  <Restaurants data={this.state.restaurants} />
+</div>
+);
+}
+});
 
-    var Restaurant = React.createClass({
-      render: function(){
-	return (
-	  <div className="restaurant">
-	    <span className="restaurant_name">{this.props.name}</span>
-	    <input defaultValue={this.props.score}/>
-	  </div>
-	);
-       }
-    });
+var UserName = React.createClass({
+render: function(){
+return (
+<div className="user_name">
+  <input />User name
+</div>
+);
+}
+});
 
-    var Restaurants = React.createClass({
-      render: function(){
-	var restaurantNode = this.props.data.map(function(restaurant){
-	  return (
-	    <Restaurant name={restaurant.name} score={restaurant.score} />
-	    );
-	  });
-	return (
-          <div className="user_settings">
-	    {restaurantNode}
-          </div>
-	);
-      }
-    });
+var Restaurant = React.createClass({
+render: function(){
+return (
+<div className="restaurant">
+  <span className="restaurant_name">{this.props.name}</span>
+  <input defaultValue={this.props.score}/>
+</div>
+);
+}
+});
 
-    ReactDOM.render(
-      <UserSettingsBox />,
-      document.getElementById('content')
-    );
-    </script>
-    <script type="text/javascript">
-    var uuid = function(){
-      var result='';
-      for(var i=0; i<32; i++)
-	result += Math.floor(Math.random()*16).toString(16).toUpperCase();
-      return result
-    };
+var Restaurants = React.createClass({
+render: function(){
+var restaurantNode = this.props.data.map(function(restaurant){
+return (
+<Restaurant name={restaurant.name} score={restaurant.score} />
+);
+});
+return (
+<div className="user_settings">
+  {restaurantNode}
+</div>
+);
+}
+});
 
-    var get_id = function(){
-      var user_id = Cookies.get('user_id');
-      if(!user_id){
-	user_id = uuid();
-	Cookies.set('user_id', user_id);
-      };
-      return user_id;
-    };
-
-    var ws = new WebSocket('ws://' + window.location.host + '/ws/');
-    ws.onopen = function(){
-      ws.communicate('auth', {'id': get_id()});
-    };
-
-    ws.onerror = function(error){
-      console.log('WS error:' + error);
-    };
-
-    ws.onmessage = function(e){
-      console.log('Message: ' + e.data);
-    };
-
-    ws.communicate = function(method, data){
-      this.send(JSON.stringify([method, data]));
-    };
-    </script>
-  </body>
-</html>
+ReactDOM.render(
+<UserSettingsBox />,
+document.getElementById('content')
+);
+{% endblock %}
