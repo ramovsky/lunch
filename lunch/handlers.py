@@ -15,6 +15,11 @@ async def index(request):
     return {}
 
 
+@aiohttp_jinja2.template('places.jinja2')
+async def places(request):
+    return {}
+
+
 class JsonRpc:
 
     def auth(self, user, id):

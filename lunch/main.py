@@ -5,7 +5,7 @@ import aiohttp_jinja2
 from aiohttp import web
 
 import lunch.config as config
-from lunch.handlers import index, WebSockHandler
+from lunch.handlers import index, places, WebSockHandler
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -19,6 +19,7 @@ async def init(loop, config):
         loader=jinja2.FileSystemLoader(config.templates_dir)
     )
     app.router.add_route('GET', '/', index)
+    app.router.add_route('GET', '/places/', places)
     app.router.add_route('GET', '/ws/', WebSockHandler())
     app.router.add_static('/static/', config.static_dir)
 
