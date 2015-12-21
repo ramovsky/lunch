@@ -1,8 +1,69 @@
 {% extends "base.jinja2" %}
 
 {% block react %}
+var restaurants = [
+  {name: "Sisaket", distance: .6},
+  {name: "Lyly", distance: .8},
+];
 
-console.log('Hello');
-console.log(communicate('hello', {}));
+var RestaurantsBox = React.createClass({
+  getInitialState: function(){
+    return {restaurants: []};
+  },
+  componentDidMount: function(){
+    this.setState({restaurants: restaurants})
+  },
+  addRow: function(e){
+    restaurants.push({name: '', distance: .5})
+    this.setState({restaurants: restaurants})
+  },
+  onNameChange: function(name, row){
+    console.log('change '+row+name);
+  },
+  render: function(){
+    return (
+	<div className="restaurants">
+	<h2>Restaurant name and distance</h2>
+	<RestaurantList data={this.state.restaurants} onNameChange={this.onNameChange} />
+	<a onClick={this.addRow}>Add</a>
+	</div>
+    );
+  }
+});
+
+var RestaurantList = React.createClass({
+  render: function(){
+    var restaurant_node = this.props.data.map(function(restaurant, i){
+      return (
+	  <Restaurant name={restaurant.name} distance={restaurant.distance} row={i} onNameChange={this.props.onNameChange}/>
+      );
+    });
+    return (
+      <div>
+	{restaurant_node}
+      </div>
+    );
+  }
+});
+
+var Restaurant = React.createClass({
+  onNameChange: function(){
+    this.props.onNameChange(this.refs.restaurantName, this.props.row);
+  },
+  render: function(){
+    return (
+	<div className="restaurant">
+	{this.props.row}
+	<input className="restaurant_name" value={this.props.name} ref="restaurantName"/>
+	<input className="restaurant_distance" value={this.props.distance} />
+	</div>
+    );
+  }
+});
+
+ReactDOM.render(
+    <RestaurantsBox />,
+  document.getElementById('content')
+);
 
 {% endblock %}
