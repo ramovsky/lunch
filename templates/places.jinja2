@@ -18,13 +18,18 @@ var RestaurantsBox = React.createClass({
     this.setState({restaurants: restaurants})
   },
   onNameChange: function(name, row){
-    console.log('change '+row+name);
+    restaurants[row]['name'] = name;
+    this.setState({restaurants: restaurants});
+  },
+  onDistanceChange: function(distance, row){
+    restaurants[row]['distance'] = distance;
+    this.setState({restaurants: restaurants});
   },
   render: function(){
     return (
 	<div className="restaurants">
 	<h2>Restaurant name and distance</h2>
-	<RestaurantList data={this.state.restaurants} onNameChange={this.onNameChange} />
+	<RestaurantList data={this.state.restaurants} onNameChange={this.onNameChange} onDistanceChange={this.onDistanceChange} />
 	<a onClick={this.addRow}>Add</a>
 	</div>
     );
@@ -35,11 +40,11 @@ var RestaurantList = React.createClass({
   render: function(){
     var restaurant_node = this.props.data.map(function(restaurant, i){
       return (
-	  <Restaurant name={restaurant.name} distance={restaurant.distance} row={i} onNameChange={this.props.onNameChange}/>
+	  <Restaurant name={restaurant.name} distance={restaurant.distance} row={i} onNameChange={this.props.onNameChange} onDistanceChange={this.props.onDistanceChange} />
       );
-    });
+    }.bind(this));
     return (
-      <div>
+      <div className="restaurant_list">
 	{restaurant_node}
       </div>
     );
@@ -48,14 +53,19 @@ var RestaurantList = React.createClass({
 
 var Restaurant = React.createClass({
   onNameChange: function(){
-    this.props.onNameChange(this.refs.restaurantName, this.props.row);
+    // TODO: add validation
+    this.props.onNameChange(this.refs.restaurantName.value, this.props.row);
+  },
+  onDistanceChange: function(){
+    // TODO: add validation
+    this.props.onDistanceChange(this.refs.restaurantDistance.value, this.props.row);
   },
   render: function(){
     return (
 	<div className="restaurant">
 	{this.props.row}
-	<input className="restaurant_name" value={this.props.name} ref="restaurantName"/>
-	<input className="restaurant_distance" value={this.props.distance} />
+	<input className="restaurant_name" value={this.props.name} ref="restaurantName" onChange={this.onNameChange}/>
+	<input className="restaurant_distance" value={this.props.distance} ref="restaurantDistance" onChange={this.onDistanceChange}/>
 	</div>
     );
   }
@@ -65,5 +75,7 @@ ReactDOM.render(
     <RestaurantsBox />,
   document.getElementById('content')
 );
+
+window.data = restaurants
 
 {% endblock %}
