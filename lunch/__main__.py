@@ -5,7 +5,7 @@ import aiohttp_jinja2
 from aiohttp import web
 
 import lunch.config as config
-from lunch.handlers import index, places, WebSockHandler
+from lunch.handlers import index, RestaurantsHandler
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -13,14 +13,19 @@ logging.basicConfig(level=logging.DEBUG)
 
 async def init(loop, config):
     app = web.Application(loop=loop)
-
     aiohttp_jinja2.setup(
         app,
         loader=jinja2.FileSystemLoader(config.templates_dir)
     )
+    restaurants_handler = RestaurantsHandler()
     app.router.add_route('GET', '/', index)
-    app.router.add_route('GET', '/places/', places)
-    app.router.add_route('GET', '/ws/', WebSockHandler())
+
+    app.router.add_route('GET', '/places/', restaurants_handler.index)
+    app.router.add_route('GET', '/restaurants/', restaurants_handler.get)
+    app.router.add_route('POST', '/restaurants/', restaurants_handler.add)
+    app.router.add_route('DELETE', '/restaurants/',
+                         restaurants_handler.delete)
+
     app.router.add_static('/static/', config.static_dir)
 
     srv = await loop.create_server(app.make_handler(), **config.host)

@@ -7,7 +7,7 @@ class User:
 
     def __init__(self, id):
         self._id = id
-        self._preferences =  {}
+        self._preferences = {}
 
     def __repr__(self):
         return '<User:{}>'.format(self.name)
@@ -41,3 +41,4 @@ def get_user(id):
 
     except FileNotFoundError:
         return User(id)
+

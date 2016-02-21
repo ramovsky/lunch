@@ -1,0 +1,15 @@
+# basic test
+
+GET http://localhost:9999/restaurants/
+
+# post
+
+POST http://localhost:9999/restaurants/
+
+{"name": "huy", "distance": 0.2}
+
+# delete
+
+DELETE http://localhost:9999/restaurants/
+
+{"name": "huy"}

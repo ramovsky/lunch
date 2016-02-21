@@ -9,6 +9,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="/static/js/js.cookie.js"></script>
+    {% block react %}
+    {% endblock %}
   </head>
   <body>
     <div id="content"></div>
@@ -28,36 +30,6 @@
       };
       return user_id;
     };
-
-    var ws = new WebSocket('ws://' + window.location.host + '/ws/');
-    ws.onopen = function(){
-      communicate('auth', {'id': get_id()});
-    };
-
-    ws.onerror = function(error){
-      console.log('WS error:' + error);
-    };
-
-    ws.onmessage = function(e){
-      console.log('Message: ' + e.data);
-    };
-
-    var buffer = [];
-    var communicate = function(method, data){
-      buffer.push([method, data]);
-      if(ws.readyState == ws.OPEN){
-	while(buffer.length > 0){
-	  ws.send(JSON.stringify(buffer.shift()));
-	};
-      };
-      if(ws.readyState > ws.OPEN){
-	console.log('Error WS is closed, ' + JSON.stringify(buffer) + ' not sended!')
-      };
-    };
-    </script>
-    <script type="text/babel">
-    {% block react %}
-    {% endblock %}
     </script>
   </body>
 </html>
